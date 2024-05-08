@@ -4,15 +4,12 @@
 
 -- 1: create a view of historical data
 -- in this case, I am using only data from Jan 01 to Mar 01
--- i am also creating a label (true/false) for saturday and sunday
+-- i am also creating a label that signals that date '2024-02-07' is an anomaly in my historical data
 create or replace view requests_historical_data_with_label as
 select 
     DATE(time)::TIMESTAMP_NTZ as day,
     count(*) as request_cnt,
-    case when (DAYOFWEEK(time)=6 or DAYOFWEEK(time)=0)
-      then TRUE 
-      else FALSE 
-    end as label
+    case when day='2024-02-07 00:00:00.000' then TRUE else FALSE end as label
 from events_ad 
 where event_type='request' and day > '2024-01-01 00:00:00.000' and day < '2024-03-01 00:00:00.000'
 group by day, label
@@ -47,19 +44,23 @@ call requests_anomaly_model_with_label!DETECT_ANOMALIES(
 create or replace table requests_model_anomalies_with_label as 
 select * from table(result_scan(last_query_id()));
 
+-- optional
+select * from requests_model_anomalies_with_label;
+
 -- 6: combine historical and forecasted values
+-- combine historical and predicted values in a single query
 select 
   DATE(time)::TIMESTAMP_NTZ as day, 
   count(*) as request_cnt,
   null as forecast, 
-  null as is_anomaly
-from events_ad
+  case when day='2024-02-07 00:00:00.000' then 10000000 end as is_anomaly
+from events_ad 
 where event_type='request' and day > '2024-01-01 00:00:00.000' and day < '2024-04-01 00:00:00.000'
 group by day
 union all
 select 
-  ts as day,
-  null as request_cnt,
+  ts as day, 
+  null as request_cnt, 
   forecast, 
   case when is_anomaly then 10000000 end as anomaly_flg
 from requests_model_anomalies_with_label;

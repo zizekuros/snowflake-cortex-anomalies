@@ -39,6 +39,6 @@ create or replace TABLE MYDATABASE.PUBLIC.EVENTS (
 
 Here are guidelines (set of SQL queries) for two different concepts:
 
-1. [Basic Anomaly Detection](basic-anomaly-detection.sql): A simple anomaly detection model trained with historical data.
+1. [Basic Anomaly Detection](basic-anomaly-detection.sql): A simple (unsupervised) anomaly detection model trained with historical data.
 
-2. [Supervised Anomaly Detection](supervised-anomaly-detection.sql): An advanced anomaly detection model that enhances data with additional label that signals whether some data point in the historic data set is an exception.
+2. [Supervised Anomaly Detection](supervised-anomaly-detection.sql): Supervised anomaly detection model that enhances data with additional label that signals whether some data point in the historic data set is an exception.
